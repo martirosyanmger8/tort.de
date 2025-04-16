@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Автовоспроизведение видео</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        video {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        
+        .video-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="video-container">
+        <!-- Замените URL_ВАШЕГО_ВИДЕО на реальную ссылку на ваше видео -->
+        <video id="autoplay-video" autoplay playsinline loop>
+            <source src="img/IMG_7026.MOV" type="video/mp4">
+            Ваш браузер не поддерживает видео.
+        </video>
+    </div>
+
+    <script>
+        // Функция для попытки воспроизведения видео со звуком
+        function attemptAutoplayWithSound() {
+            const video = document.getElementById('autoplay-video');
+            
+            // Попытка воспроизвести видео со звуком
+            video.play()
+                .then(() => {
+                    console.log('Автовоспроизведение со звуком успешно');
+                })
+                .catch((error) => {
+                    console.log('Автовоспроизведение со звуком не удалось:', error);
+                    
+                    // Если не удалось, попробуем воспроизвести без звука
+                    video.muted = true;
+                    video.play()
+                        .then(() => {
+                            console.log('Автовоспроизведение без звука успешно');
+                            
+                            // Создаем небольшое всплывающее уведомление
+                            const soundNotice = document.createElement('div');
+                            soundNotice.innerHTML = 'Нажмите для включения звука';
+                            soundNotice.style.position = 'absolute';
+                            soundNotice.style.zIndex = '1000';
+                            soundNotice.style.padding = '10px';
+                            soundNotice.style.fontSize = '16px';
+                            soundNotice.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                            soundNotice.style.color = '#fff';
+                            soundNotice.style.borderRadius = '5px';
+                            soundNotice.style.bottom = '20px';
+                            soundNotice.style.left = '50%';
+                            soundNotice.style.transform = 'translateX(-50%)';
+                            soundNotice.style.cursor = 'pointer';
+                            
+                            // Автоматически скрыть через 5 секунд
+                            setTimeout(() => {
+                                soundNotice.style.opacity = '0';
+                                soundNotice.style.transition = 'opacity 1s';
+                                setTimeout(() => soundNotice.remove(), 1000);
+                            }, 5000);
+                            
+                            document.querySelector('.video-container').appendChild(soundNotice);
+                        })
+                        .catch((error) => {
+                            console.log('Автовоспроизведение без звука тоже не удалось:', error);
+                            // Создаем кнопку для запуска видео на устройствах, где не работает автовоспроизведение
+                            const playButton = document.createElement('button');
+                            playButton.innerHTML = 'Нажмите для просмотра';
+                            playButton.style.position = 'absolute';
+                            playButton.style.zIndex = '1000';
+                            playButton.style.padding = '20px';
+                            playButton.style.fontSize = '20px';
+                            playButton.style.backgroundColor = '#f00';
+                            playButton.style.color = '#fff';
+                            playButton.style.border = 'none';
+                            playButton.style.borderRadius = '5px';
+                            playButton.style.cursor = 'pointer';
+                            
+                            playButton.addEventListener('click', function() {
+                                video.play();
+                                playButton.remove();
+                            });
+                            
+                            document.querySelector('.video-container').appendChild(playButton);
+                        });
+                });
+        }
+        
+        // Включаем звук при любом взаимодействии пользователя
+        document.addEventListener('click', function() {
+            const video = document.getElementById('autoplay-video');
+            video.muted = false;
+        });
+        
+        // Запускаем попытку автовоспроизведения при загрузке страницы
+        document.addEventListener('DOMContentLoaded', attemptAutoplayWithSound);
+        
+        // И сразу пробуем, не дожидаясь DOMContentLoaded (для более быстрого срабатывания)
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            attemptAutoplayWithSound();
+        }
+    </script>
+</body>
+</html>
